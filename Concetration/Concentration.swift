@@ -10,9 +10,28 @@ import Foundation
 
 class Concetration{
     
-    var cards = [Card]()
+    private(set) var cards = [Card]()
     
-    var indexOfOneAndOnlyFaceUpCard: Int?
+    private var indexOfOneAndOnlyFaceUpCard: Int? {
+        get{
+            var foundIndex: Int?
+            for index in cards.indices{
+                if cards[index].isFacUp {
+                    if foundIndex == nil {
+                        foundIndex = index
+                    }else{
+                        return nil
+                    }
+                }
+            }
+            return foundIndex
+        }
+        set {
+            for index in cards.indices {
+                cards[index].isFacUp = (index == newValue)
+            }
+        }
+    }
     
     
     func shuffleIt(){
@@ -27,6 +46,7 @@ class Concetration{
     }
     
     func chooseCard(at index: Int){
+        assert(cards.indices.contains(index), "Concentration.chooseCard(at: \(index)): chosen index out of range")
         if !cards[index].isFacUp {
             if let matchIndex = indexOfOneAndOnlyFaceUpCard, matchIndex != index {
                 //check if cards matched
@@ -35,19 +55,15 @@ class Concetration{
                 cards[matchIndex].isMatched = true
                 }
                 cards[index].isFacUp = true
-                indexOfOneAndOnlyFaceUpCard = nil
             }else{
                 // either no cards or 2 cards are face up
-                for flipDownIndex in cards.indices {
-                    cards[flipDownIndex].isFacUp = false
-                }
-                cards[index].isFacUp = true
                 indexOfOneAndOnlyFaceUpCard = index
             }
         }
     }
     init(numberOfPairOfCards: Int) {
-        for _ in 1..<numberOfPairOfCards {
+                assert(numberOfPairOfCards > 0, "Concentration.init(\(numberOfPairOfCards)): chosen number of pairs is illegal")
+        for _ in 1...numberOfPairOfCards {
             let card = Card()
             cards += [card, card]
         }

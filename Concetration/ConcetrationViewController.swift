@@ -10,15 +10,20 @@ import UIKit
 
 class ConcetrationViewController: UIViewController
 {
-    lazy var game = Concetration(numberOfPairOfCards: (CardButtons.count/2)+1)
-    // ..count +1 ) /2 removed;
-    var flipCount = 0 {didSet { flipCountLabel.text = "FLIPS: \(flipCount)"} }
+    private lazy var game: Concetration = Concetration(numberOfPairOfCards: numberOfPairsOfCards)
     
-    @IBOutlet weak var flipCountLabel: UILabel!
+    var numberOfPairsOfCards: Int {
+        get{
+            return (CardButtons.count+1) / 2
+        }
+    }
+    private(set) var flipCount = 0 {didSet { flipCountLabel.text = "FLIPS: \(flipCount)"} }
     
-    @IBOutlet var CardButtons: [UIButton]!
+    @IBOutlet private weak var flipCountLabel: UILabel!
     
-    @IBAction func touchCard(_ sender: UIButton) {
+    @IBOutlet private var CardButtons: [UIButton]!
+    
+    @IBAction private func touchCard(_ sender: UIButton) {
         flipCount += 1
         if let cardNumber = CardButtons.index(of: sender){
         game.chooseCard(at: cardNumber)
@@ -28,7 +33,7 @@ class ConcetrationViewController: UIViewController
             print("card is not the in the cardButtons array")
         }
     }
-    func updateViewFromModel(){
+    private func updateViewFromModel(){
         for index in CardButtons.indices{
             let button = CardButtons[index]
             let card = game.cards[index]
@@ -41,7 +46,7 @@ class ConcetrationViewController: UIViewController
             }
         }
     }
-    func unmatchAll(){
+    private func unmatchAll(){
         for index in CardButtons.indices{
             let button = CardButtons[index]
             var card = game.cards[index]
@@ -52,11 +57,11 @@ class ConcetrationViewController: UIViewController
             }
         }
     }
-    var emojiChoices = ["👹","👺","💀","☠️","👿","👽","👾","🤖","🐝","🧞‍♂️"]
+    private var emojiChoices = ["👹","👺","💀","☠️","👿","👽","👾","🤖","🐝","🧞‍♂️"]
     
-    var emoji = [Int:String]()
+    private var emoji = [Int:String]()
     
-    func emoji(for card: Card) -> String {
+    private func emoji(for card: Card) -> String {
         if emoji[card.identifier] == nil, emojiChoices.count > 0 {
                 let randomIndex = Int(arc4random_uniform(UInt32(emojiChoices.count)))
                 emoji[card.identifier] = emojiChoices.remove(at: randomIndex)
@@ -64,8 +69,8 @@ class ConcetrationViewController: UIViewController
                 return emoji[card.identifier] ?? "?"
         }
     //TODO : new shuffle
-    @IBAction func ShuffleCards(_ sender: UIButton) {
-        unmatchAll()
+    @IBAction private func ShuffleCards(_ sender: UIButton) {
+        //unmatchAll()
         self.game.shuffleIt()
         self.updateViewFromModel()
         
@@ -73,9 +78,9 @@ class ConcetrationViewController: UIViewController
     
     // TODO: new game button
     // NEWGAME makes new cards instead of taking them from the dictionary
-    @IBAction func NewGameFromUI(_ sender: UIButton) {
+    @IBAction private func NewGameFromUI(_ sender: UIButton) {
         flipCount = 0
-        self.game = Concetration(numberOfPairOfCards:(CardButtons.count/2)+1)
+        self.game = Concetration(numberOfPairOfCards: numberOfPairsOfCards)
         emojiChoices = ["👹","👺","💀","☠️","👿","👽","👾","🤖","🐝","🧞‍♂️"]
         self.game.shuffleIt()
         self.updateViewFromModel()
