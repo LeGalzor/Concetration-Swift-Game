@@ -17,9 +17,29 @@ class ConcetrationViewController: UIViewController
             return (CardButtons.count+1) / 2
         }
     }
-    private(set) var flipCount = 0 {didSet { flipCountLabel.text = "FLIPS: \(flipCount)"} }
+    private(set) var flipCount = 0 {
+        didSet {
+            updateFlipCount()
+        }
+    }
     
-    @IBOutlet private weak var flipCountLabel: UILabel!
+    private func updateFlipCount(){
+        //TODO: Replace Any to Swift Enum with associated values
+        
+        let FlipCountAttributes : [NSAttributedStringKey:Any] = [
+            .strokeWidth : 0 ,
+            .strokeColor : #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1)
+        ]
+        let attributedString = NSAttributedString(string: "FLIPS: \(flipCount)", attributes: FlipCountAttributes)
+        flipCountLabel.attributedText = attributedString
+    }
+    
+    @IBOutlet private weak var flipCountLabel: UILabel!{
+        didSet{
+            updateFlipCount()
+        }
+    }
+
     
     @IBOutlet private var CardButtons: [UIButton]!
     
@@ -57,16 +77,17 @@ class ConcetrationViewController: UIViewController
             }
         }
     }
-    private var emojiChoices = ["👹","👺","💀","☠️","👿","👽","👾","🤖","🐝","🧞‍♂️"]
+//    private var emojiChoices = ["👹","👺","💀","☠️","👿","👽","👾","🤖","🐝","🧞‍♂️"]
+    private var emojiChoices = "👹👺💀☠️👿👽👾🤖🐝🧞‍♂️"
     
-    private var emoji = [Int:String]()
+    private var emoji = [Card:String]()
     
     private func emoji(for card: Card) -> String {
-        if emoji[card.identifier] == nil, emojiChoices.count > 0 {
-                let randomIndex = Int(arc4random_uniform(UInt32(emojiChoices.count)))
-                emoji[card.identifier] = emojiChoices.remove(at: randomIndex)
+        if emoji[card] == nil, emojiChoices.count > 0 {
+                let randomStringIndex = emojiChoices.index(emojiChoices.startIndex, offsetBy: emojiChoices.count.arc4random)
+                emoji[card] = String(emojiChoices.remove(at: randomStringIndex))
             }
-                return emoji[card.identifier] ?? "?"
+                return emoji[card] ?? "?"
         }
     //TODO : new shuffle
     @IBAction private func ShuffleCards(_ sender: UIButton) {
@@ -81,10 +102,22 @@ class ConcetrationViewController: UIViewController
     @IBAction private func NewGameFromUI(_ sender: UIButton) {
         flipCount = 0
         self.game = Concetration(numberOfPairOfCards: numberOfPairsOfCards)
-        emojiChoices = ["👹","👺","💀","☠️","👿","👽","👾","🤖","🐝","🧞‍♂️"]
+        self.emojiChoices = "👹👺💀☠️👿👽👾🤖🐝🧞‍♂️"
         self.game.shuffleIt()
         self.updateViewFromModel()
         
     }
     
+}
+extension Int {
+    var arc4random: Int {
+        if self > 0 {
+        return Int(arc4random_uniform(UInt32(self)))
+        } else if self < 0 {
+            return -Int(arc4random_uniform(UInt32(abs(self))))
+        } else {
+            return 0
+        }
+        
+    }
 }
